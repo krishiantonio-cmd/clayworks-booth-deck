@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clayworks × Booth — The Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --charcoal:  #1c1a18;
+    --charcoal2: #252320;
+    --charcoal3: #2e2b27;
+    --bone:      #e8e0d0;
+    --bone2:     #cfc6b4;
+    --bone3:     #b0a896;
+    --oxide:     #b84a1e;
+    --oxide2:    #d05a28;
+    --oxide3:    #8a3514;
+    --ink:       #0f0e0c;
+    --paper:     #f2ece0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--charcoal);
+    color: var(--bone);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 2px solid var(--oxide);
+    padding: 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    background: var(--charcoal);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--oxide);
+  }
+
+  .header-right {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bone3);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 48px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-rule {
+    width: 60px;
+    height: 3px;
+    background: var(--oxide);
+    margin-bottom: 32px;
+  }
+
+  .hero-kicker {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--oxide);
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 160px);
+    line-height: 0.88;
+    letter-spacing: 2px;
+    color: var(--bone);
+    margin-bottom: 40px;
+  }
+
+  .hero-title .outline {
+    -webkit-text-stroke: 2px var(--bone3);
+    color: transparent;
+  }
+
+  .hero-title .oxide { color: var(--oxide); }
+
+  .hero-sub {
+    font-size: 18px;
+    line-height: 1.75;
+    color: var(--bone3);
+    max-width: 580px;
+    border-left: 3px solid var(--oxide);
+    padding-left: 24px;
+    margin-bottom: 64px;
+  }
+
+  .hero-bg-text {
+    position: absolute;
+    right: -30px;
+    top: 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 320px;
+    letter-spacing: -10px;
+    color: var(--charcoal3);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .hero-inner { position: relative; z-index: 1; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 48px;
+    padding: 32px 0;
+    border-top: 1px solid var(--charcoal3);
+  }
+
+  .divider-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bone3);
+    white-space: nowrap;
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--charcoal3);
+  }
+
+  /* ── STATS STRIP ── */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 2px solid var(--charcoal3);
+    border-bottom: 2px solid var(--charcoal3);
+    margin: 0 48px;
+  }
+
+  .stat {
+    padding: 36px 28px;
+    border-right: 1px solid var(--charcoal3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat:last-child { border-right: none; }
+
+  .stat::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--oxide);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat:hover::after { opacity: 1; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 1px;
+    color: var(--bone);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-num span { color: var(--oxide); }
+
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--bone3);
+    line-height: 1.5;
+  }
+
+  /* ── WHAT WE DO ── */
+  .section {
+    padding: 72px 48px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 56px;
+  }
+
+  .section-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    line-height: 0.85;
+    color: var(--charcoal3);
+    flex-shrink: 0;
+    margin-top: -8px;
+  }
+
+  .section-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 5vw, 60px);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--bone);
+  }
+
+  .section-heading .oxide { color: var(--oxide); }
+
+  /* ── ENGINE PARTS ── */
+  .engine-parts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--charcoal3);
+  }
+
+  @media (max-width: 680px) { .engine-parts { grid-template-columns: 1fr; } }
+
+  .part {
+    background: var(--charcoal2);
+    padding: 40px 36px;
+    transition: background 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .part:hover { background: var(--charcoal3); }
+
+  .part-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--oxide);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .part-tag::before {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background: var(--oxide);
+    display: inline-block;
+  }
+
+  .part-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+    color: var(--bone);
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+
+  .part-desc {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--bone3);
+  }
+
+  .part-number {
+    position: absolute;
+    bottom: -10px;
+    right: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 100px;
+    color: var(--charcoal3);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    transition: color 0.25s;
+  }
+
+  .part:hover .part-number { color: rgba(184,74,30,0.1); }
+
+  /* ── MEETING AGENDA ── */
+  .agenda-section {
+    background: var(--ink);
+    padding: 72px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .agenda-section::before {
+    content: 'AGENDA';
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 180px;
+    color: var(--charcoal2);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .agenda-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 2px;
+    color: var(--bone);
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+
+  .agenda-sub {
+    font-size: 15px;
+    color: var(--bone3);
+    margin-bottom: 52px;
+    max-width: 500px;
+  }
+
+  .agenda-list {
+    list-style: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .agenda-item {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 32px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--charcoal3);
+    align-items: start;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.5s forwards;
+  }
+
+  .agenda-item:nth-child(1) { animation-delay: 0.1s; }
+  .agenda-item:nth-child(2) { animation-delay: 0.2s; }
+  .agenda-item:nth-child(3) { animation-delay: 0.3s; }
+  .agenda-item:nth-child(4) { animation-delay: 0.4s; }
+  .agenda-item:nth-child(5) { animation-delay: 0.5s; }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .agenda-time {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--oxide);
+    text-transform: uppercase;
+    padding-top: 3px;
+  }
+
+  .agenda-content-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--bone);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .agenda-content-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--bone3);
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: center;
+    border-top: 2px solid var(--oxide);
+  }
+
+  @media (max-width: 680px) { .cta-section { grid-template-columns: 1fr; } }
+
+  .cta-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--bone);
+    margin-bottom: 12px;
+  }
+
+  .cta-heading .oxide { color: var(--oxide); }
+
+  .cta-sub {
+    font-size: 15px;
+    color: var(--bone3);
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: var(--charcoal);
+    background: var(--oxide);
+    padding: 20px 44px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .cta-btn:hover {
+    background: var(--oxide2);
+    transform: translateY(-2px);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 24px 48px;
+    border-top: 1px solid var(--charcoal3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--charcoal3); }
+  .footer-text { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--charcoal3); }
+
+  /* ── CHANNEL BAR ── */
+  .channel-bar {
+    display: flex;
+    gap: 0;
+    margin: 48px 0 0;
+    border: 1px solid var(--charcoal3);
+  }
+
+  .channel-item {
+    flex: 1;
+    padding: 16px 8px;
+    text-align: center;
+    border-right: 1px solid var(--charcoal3);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--bone3);
+    transition: background 0.2s, color 0.2s;
+    cursor: default;
+  }
+
+  .channel-item:last-child { border-right: none; }
+  .channel-item:hover { background: var(--oxide); color: var(--charcoal); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">CLAYWORKS</div>
+  <div class="header-right">Prepared for Angela Lucus · Booth</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">GTM</div>
+  <div class="hero-inner">
+    <div class="hero-rule"></div>
+    <div class="hero-kicker">Pipeline as a Service · Clayworks.io</div>
+    <h1 class="hero-title">
+      BUILD<br>
+      THE<br>
+      <span class="oxide">ENGINE.</span>
+    </h1>
+    <p class="hero-sub">
+      What Clayworks does for Booth — and what we'll cover in our 30-minute call. A signal-driven, AI-powered outbound machine that books qualified meetings while your team focuses on closing.
+    </p>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat">
+    <div class="stat-num">4,500<span>+</span></div>
+    <div class="stat-label">Qualified<br>meetings booked</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">16<span>×</span></div>
+    <div class="stat-label">Average ROI<br>across accounts</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">68<span>%</span></div>
+    <div class="stat-label">More positive replies<br>than industry avg</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">15<span>+</span></div>
+    <div class="stat-label">Meetings per month<br>guaranteed</div>
+  </div>
+</div>
+
+<!-- WHAT WE DO -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <h2 class="section-heading">WHAT<br>CLAYWORKS<br><span class="oxide">DOES</span></h2>
+  </div>
+
+  <div class="engine-parts">
+    <div class="part">
+      <div class="part-tag">Component 01</div>
+      <div class="part-title">Signal Intelligence</div>
+      <div class="part-desc">We monitor 750,000+ companies for real-time buying signals — funding rounds, headcount spikes, international job postings, competitor activity. You reach Booth's ideal clients the moment they're ready, not six months after.</div>
+      <div class="part-number">01</div>
+    </div>
+    <div class="part">
+      <div class="part-tag">Component 02</div>
+      <div class="part-title">Hyper-Personalised Outreach</div>
+      <div class="part-desc">AI voice notes, bespoke email sequences, LinkedIn messaging — every touchpoint is tailored to the specific company and decision-maker. Not merged fields. Actual context. We hit 15% positive reply rates vs. the 3% industry average.</div>
+      <div class="part-number">02</div>
+    </div>
+    <div class="part">
+      <div class="part-tag">Component 03</div>
+      <div class="part-title">True Omnichannel</div>
+      <div class="part-desc">Email, LinkedIn, WhatsApp, cold calling, video — 7 channels coordinated under one consistent message. Your buyers get reached where they actually spend time, not just where it's easy for us.</div>
+      <div class="part-number">03</div>
+    </div>
+    <div class="part">
+      <div class="part-tag">Component 04</div>
+      <div class="part-title">Dedicated BDR & CSM Team</div>
+      <div class="part-desc">A human team embedded in Booth's brand. We act as an extension of your BD function — not a vendor blasting bulk email. Full CRM sync, real-time reporting, zero manual entry. You stay in the loop without doing the work.</div>
+      <div class="part-number">04</div>
+    </div>
+  </div>
+
+  <div class="channel-bar">
+    <div class="channel-item">Email</div>
+    <div class="channel-item">LinkedIn</div>
+    <div class="channel-item">WhatsApp</div>
+    <div class="channel-item">Cold Call</div>
+    <div class="channel-item">Video</div>
+    <div class="channel-item">Inbound</div>
+    <div class="channel-item">CRM Sync</div>
+  </div>
+</section>
+
+<div class="divider" style="margin: 0 48px;">
+  <div class="divider-label">30-Minute Meeting</div>
+  <div class="divider-line"></div>
+  <div class="divider-label">What we'll cover</div>
+</div>
+
+<!-- MEETING AGENDA -->
+<section class="agenda-section">
+  <h2 class="agenda-heading">THE 30-MINUTE<br><span style="color:var(--oxide)">AGENDA.</span></h2>
+  <p class="agenda-sub">No pitch theatre. No sales decks read aloud. Just 30 focused minutes that end with a clear decision.</p>
+
+  <ul class="agenda-list">
+    <li class="agenda-item">
+      <span class="agenda-time">Min 0–5</span>
+      <div>
+        <div class="agenda-content-title">Quick Context — Booth's BD Goals</div>
+        <div class="agenda-content-desc">We already know a lot about Booth. This 5 minutes is for Angela to tell us what's working, what's not, and where the pipeline gaps actually sit right now — so everything that follows is relevant.</div>
+      </div>
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-time">Min 5–12</span>
+      <div>
+        <div class="agenda-content-title">Your ICP & Signal Map</div>
+        <div class="agenda-content-desc">We show the specific companies, signals, and triggers Clayworks would monitor for Booth — funding-stage companies hiring globally, APAC expansion plays, AI-ops hiring spikes. Live examples, not hypotheticals.</div>
+      </div>
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-time">Min 12–20</span>
+      <div>
+        <div class="agenda-content-title">Outreach Examples — Tailored for Booth</div>
+        <div class="agenda-content-desc">We walk through actual email copy, LinkedIn sequences, and AI voice note examples written as if Booth were already a client. You see the quality before you buy anything.</div>
+      </div>
+    </li>
+    <li class="agenda-item">
+      <span class="agenda-time">Min 20–26</span>
+      <div>
+        <div class="agenda-content-title">Plan Recommendation & Guaranteed Numbers</div>
+        <div class="agenda-content-desc">Based on Booth's market and growth stage, we recommend the right plan (Auto, Complete, or GTM), explain the meeting guarantee, and clarify the onboarding timeline — typically live within 2 weeks.</div>
+      </div>
+    </li>
+    <li class="agenda-item" style="border-bottom: none;">
+      <span class="agenda-time">Min 26–30</span>
+      <div>
+        <div class="agenda-content-title">Questions & Next Step</div>
+        <div class="agenda-content-desc">Open floor. We don't close on the call — we give you a clear follow-up: a custom outbound growth plan sent within 24 hours, specific to Booth's ICP, channels, and target markets.</div>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div>
+    <h2 class="cta-heading">READY TO<br>FIRE UP THE<br><span class="oxide">ENGINE?</span></h2>
+    <p class="cta-sub">30 minutes. No commitment. Walk away with a custom outbound growth plan — even if you don't move forward with us.</p>
+  </div>
+  <a href="https://www.clayworks.io/calendar" target="_blank" class="cta-btn">BOOK THE CALL</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">CLAYWORKS</div>
+  <div class="footer-text">clayworks.io · hello@clayworks.io · +44 020 8089 3971</div>
+</footer>
+
+</body>
+</html>
